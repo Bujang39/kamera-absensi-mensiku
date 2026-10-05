@@ -147,7 +147,6 @@ async function bukaKamera(){
 
 }
 
-
 function ambilFoto(){
 
   const kamera =
@@ -155,6 +154,9 @@ function ambilFoto(){
 
   const preview =
     document.getElementById("preview");
+
+  const status =
+    document.getElementById("status");
 
   const canvas =
     document.createElement("canvas");
@@ -174,15 +176,20 @@ function ambilFoto(){
     0
   );
 
-  preview.src =
+  // Ubah foto menjadi Base64
+  const foto =
     canvas.toDataURL(
       "image/jpeg",
       0.85
     );
 
+  // Tampilkan preview
+  preview.src = foto;
+
   preview.style.display =
     "block";
 
+  // Hentikan kamera
   if(stream){
 
     stream
@@ -196,9 +203,44 @@ function ambilFoto(){
   document.getElementById("btnFoto")
     .style.display = "none";
 
-  document.getElementById("status")
-    .textContent =
-    "✅ Foto berhasil diambil.";
+
+  // Tentukan jenis absensi
+  const parameter =
+    new URLSearchParams(
+      window.location.search
+    );
+
+  const jenisAbsensi =
+    parameter.get("jenis") || "ABSENSI";
+
+
+  // Kirim foto ke halaman Absensi
+  if(window.opener){
+
+    window.opener.postMessage(
+
+      {
+        tipe: "FOTO_ABSENSI",
+
+        foto: foto,
+
+        jenisAbsensi:
+          jenisAbsensi
+      },
+
+      "*"
+
+    );
+
+    status.textContent =
+      "✅ Foto berhasil diambil dan dikirim.";
+
+  } else {
+
+    status.textContent =
+      "⚠️ Foto berhasil diambil, tetapi halaman Absensi tidak ditemukan.";
+
+  }
 
 }
 
