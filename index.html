@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Foto Bukti Absensi</title>
+
+<style>
+body{
+  font-family:Arial,sans-serif;
+  background:#eef5f9;
+  margin:0;
+  padding:20px;
+  text-align:center;
+}
+
+.card{
+  max-width:420px;
+  margin:auto;
+  background:white;
+  padding:20px;
+  border-radius:16px;
+  box-shadow:0 8px 24px rgba(0,0,0,.12);
+}
+
+h2{
+  color:#0878b5;
+}
+
+video,
+img{
+  width:100%;
+  border-radius:12px;
+  margin-top:12px;
+}
+
+button{
+  width:100%;
+  padding:14px;
+  margin-top:12px;
+  border:0;
+  border-radius:10px;
+  background:#147fae;
+  color:white;
+  font-weight:bold;
+  font-size:16px;
+}
+
+#preview,
+#btnFoto{
+  display:none;
+}
+
+#status{
+  margin-top:15px;
+  font-size:14px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="card">
+
+  <h2>📷 FOTO BUKTI ABSENSI</h2>
+
+  <p>
+    Silakan izinkan kamera untuk mengambil foto selfie.
+  </p>
+
+  <video
+    id="kamera"
+    autoplay
+    playsinline>
+  </video>
+
+  <img
+    id="preview"
+    alt="Preview foto">
+
+  <button
+    id="btnBuka"
+    onclick="bukaKamera()">
+    📷 BUKA KAMERA
+  </button>
+
+  <button
+    id="btnFoto"
+    onclick="ambilFoto()">
+    📸 AMBIL FOTO
+  </button>
+
+  <div id="status"></div>
+
+</div>
+
+<script>
+
+let stream = null;
+
+async function bukaKamera(){
+
+  const kamera =
+    document.getElementById("kamera");
+
+  const btnBuka =
+    document.getElementById("btnBuka");
+
+  const btnFoto =
+    document.getElementById("btnFoto");
+
+  const status =
+    document.getElementById("status");
+
+  try{
+
+    stream =
+      await navigator.mediaDevices.getUserMedia({
+
+        video:{
+          facingMode:"user"
+        },
+
+        audio:false
+
+      });
+
+    kamera.srcObject = stream;
+
+    btnBuka.style.display = "none";
+
+    btnFoto.style.display = "block";
+
+    status.textContent =
+      "✅ Kamera aktif.";
+
+  }
+
+  catch(error){
+
+    status.textContent =
+      "❌ Kamera gagal dibuka: "
+      + error.message;
+
+  }
+
+}
+
+
+function ambilFoto(){
+
+  const kamera =
+    document.getElementById("kamera");
+
+  const preview =
+    document.getElementById("preview");
+
+  const canvas =
+    document.createElement("canvas");
+
+  canvas.width =
+    kamera.videoWidth;
+
+  canvas.height =
+    kamera.videoHeight;
+
+  const context =
+    canvas.getContext("2d");
+
+  context.drawImage(
+    kamera,
+    0,
+    0
+  );
+
+  preview.src =
+    canvas.toDataURL(
+      "image/jpeg",
+      0.85
+    );
+
+  preview.style.display =
+    "block";
+
+  if(stream){
+
+    stream
+      .getTracks()
+      .forEach(track => track.stop());
+
+    stream = null;
+
+  }
+
+  document.getElementById("btnFoto")
+    .style.display = "none";
+
+  document.getElementById("status")
+    .textContent =
+    "✅ Foto berhasil diambil.";
+
+}
+
+</script>
+
+</body>
+</html>
